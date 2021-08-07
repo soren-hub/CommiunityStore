@@ -9,7 +9,7 @@ export const Home = () => {
       <Navbar />
      
       <section className="banner contenedor" >
-        <secrion className="banner_title" style={{textIndent: '60px'}} >
+        <secrion className="banner_title" style={{textIndent: '100px'}} >
           <h2><center>Community <br/> Store</center></h2>
         </secrion>
  
