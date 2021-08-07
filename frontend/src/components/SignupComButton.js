@@ -1,13 +1,13 @@
 import React , { useState } from 'react';
 import { Link } from "react-router-dom";
 
-
+const API = process.env.REACT_APP_API;
 
 
 export const SignupComButton = () => {
 
 
-  const [email, setEmail] = useState('');
+  const [emailAdmin, setEmail] = useState('');
   const [name, setName] = useState('');
   const [nameCommunity, setNameCommunity] = useState('');
   const [password, setPassword] = useState('');
@@ -15,10 +15,23 @@ export const SignupComButton = () => {
 
 
 
-  const signupCom = (e) => {
+  const signupCom = async (e) => {
       e.preventDefault();
       console.log('form submitted')
-      console.log(email,password,nameCommunity,name)
+      const response = await fetch(`${API}/api/signup_community`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          emailAdmin,
+          password,
+          nameCommunity,
+          name
+        }),
+      });
+      const data = await response.json();
+      console.log(data)
     }
 
 
@@ -79,7 +92,7 @@ export const SignupComButton = () => {
                   className="form-control"
                   placeholder="Email administrador"
                   required
-                  onChange={(e) => setEmail(e.target.value)} value={email} 
+                  onChange={(e) => setEmail(e.target.value)} value={emailAdmin} 
                 />
               </div>
               <div className="form-group">

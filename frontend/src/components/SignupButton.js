@@ -2,6 +2,8 @@ import React , { useState } from 'react';
 import { Link } from "react-router-dom";
 
 
+const API = process.env.REACT_APP_API;
+
 export const SignupButton = () => {
 
 
@@ -11,10 +13,23 @@ export const SignupButton = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const signup = (e) => {
-      e.preventDefault();
-      console.log('form submitted')
-      console.log(email,password,name,nameCommunity)
+  const signup = async (e) => {
+    e.preventDefault();
+    console.log('form submitted')
+    const response = await fetch(`${API}/api/signup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        nameCommunity,
+        name
+      }),
+    });
+    const data = await response.json();
+    console.log(data)
     }
 
 
