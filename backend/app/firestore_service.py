@@ -1,21 +1,24 @@
 import firebase_admin
 import pyrebase
-import json
+from werkzeug.security import generate_password_hash
 from firebase_admin import credentials, firestore, auth 
 from firebase_admin._auth_utils import UserNotFoundError,EmailAlreadyExistsError
 from requests import HTTPError
+from .config import Fbconfig
 
-
-info = json.load(open('fbconfig.json'))
+config = Fbconfig.config
+    
 #Connect to firebase
 
 cred = credentials.ApplicationDefault()
 firebase = firebase_admin.initialize_app(cred,{
-  'projectId': info['projectId'] 
+  'projectId': config['projectId'] 
 })
-pb = pyrebase.initialize_app(json.load(open('fbconfig.json')))
+pb = pyrebase.initialize_app(config)
 
 db = firestore.client() 
+
+
 
 
 def user_exist(email): 
@@ -29,6 +32,13 @@ def user_exist(email):
 def get_uid_user_with_email(email): 
     user = auth.get_user_by_email(email)
     return user.uid
+
+def get_user(email):
+    uid = get_uid_user_with_email(email)
+    users =   db.collection("users")
+    query = users.where("uid", "==", uid).stream()
+    user = [{"id":doc.id,**doc.to_dict()} for doc in query][0]
+    return user
 
 def list_communities():
     data = db.collection(u'communities').get()
@@ -44,7 +54,7 @@ def verify_name_community_used(name_community):
     
 
     
-def validates_and_inserts_user(uid, name, name_community):
+def validates_and_inserts_user(user,password, name, name_community):
     """
     Validate user and the community he/she belongs to and insert 
     in the database to collection "users".
@@ -65,12 +75,15 @@ def validates_and_inserts_user(uid, name, name_community):
     info_community={
         'name_community' : name_community,
         'name' : name,
-        'uid':uid 
+        'email':user.email ,
+        'password':generate_password_hash(password)
+        #'uid':user.uid
     }
     db.collection("users").add(info_community)
     return {
         'status':200,
-        'message': f'Successfully created user {uid}'
+        'message': f'Successfully created user',
+        "uid": uid
         }
     
 
@@ -80,7 +93,8 @@ def login(email,password):
         pb.auth().sign_in_with_email_and_password(email,password)
         return {
             'status':200,
-            'message': 'Successfully login'
+            'message': 'Successfully login',
+            "uid": get_uid_user_with_email(email)
             }
     except HTTPError: 
         return {
@@ -190,17 +204,21 @@ def register_user(email,password, name,name_community):
             }
     else:    
         user = register_auth(email, password)
-        return validates_and_inserts_user(user.uid, name, name_community)
+        return validates_and_inserts_user(user, password, name, name_community)
+    
+def signout(): 
+    return auth.signOut()
         
         
 
 if __name__ == '__main__':
-    email="And@gmail.com"
+    email="joaquinrohland@gmail.com"
     name="joaco"
     password="joaquin"
     uid='EhPf9qVOhSMtplc5zjyf4G6DXgs1'
     name_community='prueba1'
-    print(register_user(email,password,name,name_community))
+    #print(register_user(email,password,name,name_community))
+    print(get_user(email))
     #print(register_user_into_community(email,password, nickname,name_community))
     #verify_name_used(name_community)
     #create_community(email_admin,name_community)

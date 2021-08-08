@@ -1,4 +1,8 @@
-{
+class Config:
+    SECRET_KEY = 'tCVs&%`T<?L[73q_fsj!BUC-nw,[H2'
+    
+class Fbconfig: 
+    config = {
     "apiKey": "AIzaSyCHSI0CvYh2dvYKZ48CLx5wQ8rYniwQ1PE",
     "authDomain": "prueba-dace4.firebaseapp.com",
     "databaseURL": "https://prueba-dace4-default-rtdb.firebaseio.com",
